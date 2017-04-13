@@ -86,9 +86,11 @@ arma::cube Fy;
 arma::cube Fz;
 
 Fx = -imDev(Eext,sigma2,1)*2*sigma2*sigma2;
+std::cout<<"after imDev 1"<<std::endl;
 Fy = -imDev(Eext,sigma2,2)*2*sigma2*sigma2;
+std::cout<<"after imDev 2"<<std::endl;
 Fz = -imDev(Eext,sigma2,3)*2*sigma2*sigma2;
-
+std::cout<<"after imDev 3"<<std::endl;
 //Calcuate GVF Image Force  Might be needed later 
 //Not used for now
 /*
@@ -101,10 +103,11 @@ Fx2=GVFimF(Fx,Fy,Fz, mu, Giter, sigma3, 1);
 Fy2=GVFimF(Fx,Fy,Fz, mu, Giter, sigma3, 2);
 Fz2=GVFimF(Fx,Fy,Fz, mu, Giter, sigma3, 3);
 */
-
+//std::cout<<"after imDev"<<std::endl;
 Eigen::SparseMatrix<double> intForce;
+
+
 //internal Force for snake
-//size = npts by npts
 //This is correct
 intForce = interF(V,F,alpha,beta,gamma);
 
@@ -116,6 +119,7 @@ intForce = interF(V,F,alpha,beta,gamma);
 //Vout = snakeMove(intForce,F,V,Eext,gamma,kappa,delta,lamb);
 
   //  }
+  std::cout<<"end of snake"<<std::endl;
 return V; 
 }
 

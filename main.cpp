@@ -6,11 +6,18 @@
 #include <igl/png/readPNG.h>
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include "igl/unique.h"
+#include "igl/readCSV.h"
+#include <armadillo>
+
 
 #include "interpcont.h"
 #include "extForce.h"
 #include "imDev.h"
 #include "snake3D.h"
+
+
+#include <string>
 
 // Input polygon
 Eigen::MatrixXd V;
@@ -29,7 +36,7 @@ Eigen::MatrixXi F2;
 
 Eigen::MatrixXd V3;
 Eigen::MatrixXi F3;
-
+igl::viewer::Viewer viewer2;
 // Function to press key; called every time a keyboard button is pressed 
 bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
@@ -50,6 +57,7 @@ bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 
   if (key == '2')
   {
+  /*
     // Allocate temporary buffers
     Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> R,G,B,A,I;
     Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> temp;
@@ -70,24 +78,71 @@ Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> P;
 
 //output contour
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> outcont;	
-outcont = snake3D(P, //initial contour
-temp, //input gray-scale image
+*/
+
+
+Eigen::MatrixXd V; //vertices
+Eigen::MatrixXi F;
+arma::cube input(64,64,64);
+//arma::cube input;
+igl::readCSV("newV",V);
+igl::readCSV("newF",F);
+//Eigen::MatrixXi F2 = F-Eigen::MatrixXd::Ones(F.rows(),F.cols());   
+input.load("target");
+input.reshape(64,64,64);
+//std::cout<<F.rows()<<"  "<< F.cols()<<"  "<<V.rows()<<" "<<std::endl;
+std::cout<<input.n_rows<<" "<<input.n_cols<<" "<<input.n_slices<<std::endl;
+
+viewer2.data.set_mesh(V,F);
+//viewer2.core.align_camera_center(V,F);
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> outV;
+outV =  snake3D(
+V, //vertices
+F, //Faces
+input, //input 3D image
+0.1, //time step, default 1
+20, //# of iteration, default 100
+//int npts, //# of pts to interpolate contours 
+2, // sigma to calculate img derivative default 10
+-1, //attraction to lines, < 0 to black line; > 0 to white line; default 0.04
+0, //attraction to edge, default 2.0
+//double wt, //attraction to end points, default 0.01
+2, //sigma to calculate gradient of edge energy image (give image force), default 20
+0.2,//double alpha, //membrane energy, default 0.2
+0.2,//double beta, //thin plate energy, default 0.2
+0.1,//double delta, //baloon force, default 0.1
+0.5,//double kappa, //weight of external img force, default 2
+// the following is used for GVF snake
+0.2,//double mu, //tradeoff between real edge vectors and noise vectors, default 0.2
+0,//int Giter, //GVF iteration, default 0
+1,//double sigma3, //sigma used to calculate laplacian in GVF, default 1
+0.8,//double lamb, //Weight which changes the direction of the image potential force to the direction of the surface normal,
+// (Keeps the surface from self intersecting)
+viewer
+);
+
+/*
+outcont = snake3D(V,
+F, //initial contour
+input, //input 3D image
 1, //time step, default 1
-400, //# of iteration, default 100
-100, //# of pts to interpolate contours 
-3, // sigma to calculate img derivative default 10
-0, //attraction to lines, < 0 to black line; > 0 to white line; default 0.04 wl
-2, //attraction to edge, default 2.0 wedge
-0, //attraction to end points, default 0.01 wterm
-3, //sigma to calculate gradient of edge energy image (give image force), default 20
-0.1, //membrane energy, default 0.2 alpha
-0.1, //thin plate energy, default 0.2 beta
--0.1, //baloon force, default 0.1 delta
-4, //weight of external img force, default 2 kappa 
+20, //# of iteration, default 100
+//int npts, //# of pts to interpolate contours 
+2, // sigma to calculate img derivative default 1
+-1, //attraction to lines, < 0 to black line; > 0 to white line; default 0.04
+0, //attraction to edge, default 2.0
+//double wt, //attraction to end points, default 0.01
+2, //sigma to calculate gradient of edge energy image (give image force), default 20
+0.2, //membrane energy, default 0.2
+0.2, //thin plate energy, default 0.2
+0.1, //baloon force, default 0.1
+0.5, //weight of external img force, default 2
 // the following is used for GVF snake
 0.2, //tradeoff between real edge vectors and noise vectors, default 0.2
-100, //GVF iteration, default 0
+0, //GVF iteration, default 0
 1, //sigma used to calculate laplacian in GVF, default 1
+0.8, //Weight which changes the direction of the image potential force to the direction of the surface normal,
+// (Keeps the surface from self intersecting)
 viewer
 );
 
@@ -147,24 +202,25 @@ std::cout<<"End of Snake"<<std::endl;
     // Use the image as a texture
   }
 
-
+*/
   return false;
 }
 
-
+}
 
 
 int main(int argc, char *argv[])
 {
   using namespace Eigen;
   using namespace std;
- Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> R1,G1,B1,A1,I1;
-    Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> temp1;
+ ///Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> R1,G1,B1,A1,I1;
+  //  Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> temp1;
     // Read the PNG
-    temp1 = igl::png::readPNG("myim2.png",R1,G1,B1,A1,temp1);
+ //   temp1 = igl::png::readPNG("myim2.png",R1,G1,B1,A1,temp1);
 
-double rsize1 =(double)temp1.rows();
-double csize1 =(double)temp1.cols();
+//double rsize1 =(double)temp1.rows();
+//double csize1 =(double)temp1.cols();
+/*
 std::cout<<"r = "<<rsize1<<" c = "<<csize1<<std::endl;
 Eigen::MatrixXd Vout1;
 Eigen::MatrixXi Eout1;
@@ -172,8 +228,8 @@ Eigen::MatrixXd Hout1;
 Vout1.resize(5,2);
 Eout1.resize(5,2);
 
-Vout1(1,0) = -csize1/2;
-Vout1(1,1) = -rsize1/2;
+//Vout1(1,0) = -csize1/2;
+//Vout1(1,1) = -rsize1/2;
 Vout1(2,0) = csize1/2;
 Vout1(2,1) = -rsize1/2;
 Vout1(3,0) = csize1/2;
@@ -220,6 +276,8 @@ Hout1 << 0,0;
   //     8,9, 9,10, 10,11, 11,8;
 
  // H << 0,1;
+
+ /*
 Eigen::MatrixXd V22;
 Eigen::MatrixXi F22;
 
@@ -228,17 +286,16 @@ Eigen::MatrixXi F22;
 	igl::viewer::Viewer viewer;
 //igl::triangle::triangulate(V,E,H,"a5q",V2,F2);
   // Plot the generated mesh
-	igl::viewer::Viewer viewer2;
+  */
+
         
 	viewer2.data.clear();
-	viewer2.data.set_mesh(V22,F22);
-	viewer2.core.align_camera_center(V22,F22);
+	//viewer2.data.set_mesh(V22,F22);
+//	viewer2.core.align_camera_center(V22,F22);
 	viewer2.core.show_texture = false;
         viewer2.callback_key_down = &key_down;
 	viewer2.launch();
 
 // Wait for Key? 
-	
-	
-        
+  
 }

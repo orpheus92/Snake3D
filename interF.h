@@ -3,9 +3,12 @@
 #include <string>
 #include <cmath> 
 #include <armadillo>
-	
+#include <Eigen/SparseCholesky>
 #include <Eigen/SparseCore>
-
+#include <igl/viewer/Viewer.h>
+//#include <igl/unique.h>
+//#include <igl/triangle/unique.h>
+#include "tutorial_shared_path.h"
 
 Eigen::SparseMatrix<double>  interF(
 Eigen::MatrixXd V, //vertices

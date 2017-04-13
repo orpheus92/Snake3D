@@ -21,7 +21,7 @@
 #include <igl/triangle/triangulate.h>
 #include <igl/png/writePNG.h>
 #include <igl/png/readPNG.h>
-
+#include <igl/unique.h>
 
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> snake3D(
 Eigen::MatrixXd V, //vertices
