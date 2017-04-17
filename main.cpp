@@ -203,6 +203,15 @@ std::cout<<"End of Snake"<<std::endl;
   }
 
 */
+ viewer2.data.clear();
+    viewer2.data.set_mesh(outV,F);
+    viewer2.core.show_texture = false;
+    //viewer2.core.invert_normal = true;
+viewer2.launch();
+	//viewer2.core.show_texture = false;
+      //  viewer2.callback_key_down = &key_down;
+//	viewer2.launch();
+
   return false;
 }
 

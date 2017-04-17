@@ -35,17 +35,18 @@ arma::cube out(row,col,sli);
 Ix = imDev(Img, sigma, 1);
 Iy = imDev(Img, sigma, 2);
 Iz = imDev(Img, sigma, 3);
+Ix.save("myIx", arma::arma_ascii);
 
-
-
+//std::cout<<" find the problem "<<"Ix= "<< Ix << std::endl;
 //Line Energy
 arma::cube Eline(row,col,sli);
 Eline = imgaussian(Img,sigma);
-
+Eline.save("myEline", arma::arma_ascii);
+//std::cout<<" afterline "<<"row = "<<row << std::endl;
 //Edge Energy
 arma::cube Eedge(row,col,sli);
 Eedge = sqrt(square(Ix) + square(Iy) + square(Iz)); 
-
+Eedge.save("myEedge", arma::arma_ascii);
 //Externa =l Energy
 arma::cube Eext(row,col,sli);
 
@@ -118,25 +119,28 @@ if (Sigma>0){
 	// Make 1D Gaussian kernel
 	    
 	arma::cube x(siz+1,1,1);
+	arma::cube xxx(siz+1,1,1);
 	arma::cube Img1; 
 	arma::cube Img2;
 	arma::cube out;  
+	std::cout<<"enter gaussian"<<std::endl;
 	for (int ii = 0; ii<siz+1; ii++){
 	
-	x(ii,1,1) = (double) ii- siz/2;
+	x(ii,0,0) = (double) ii- siz/2;
 	
 	}
 	
 	arma::cube Hx(siz+1,1,1);
-	Hx = exp(-square(x)/2/Sigma/Sigma)/sum(exp(-square(x)/2/Sigma/Sigma));
+	xxx.fill(as_scalar(sum(exp(-square(x)/2/Sigma/Sigma))));
+	Hx = exp(-square(x)/2/Sigma/Sigma)/xxx;
 
 	arma::cube Hy = resize(Hx, 1, siz+1, 1);
 	arma::cube Hz = resize(Hx, 1, 1, siz+1);
 	
 	imfilter2(Img, Hx, Img1);
 	imfilter2(Img1, Hy, Img2);
-	imfilter2(Img2, Hz, out);
-
+	imfilter2(Img2, Hz, out);	
+	std::cout<<out.n_rows<<" "<<out.n_cols<<" "<<std::endl;
 	return out;
 	}
 else

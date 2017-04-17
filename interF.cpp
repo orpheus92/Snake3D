@@ -51,7 +51,7 @@ for (int vv = 0; vv<nV; vv++)
 for(int iterC = 0; iterC<curR.n_elem; iterC++)
   {
  // cout << *i << endl;
- regmat.insert(vv,curR(iterC))=1/curR.n_elem;
+ regmat.insert(vv,curR(iterC))=(double)1/curR.n_elem;
   }
 
 

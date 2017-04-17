@@ -21,9 +21,9 @@ arma::cube y(1,total,1);
 arma::cube z(1,1,total);
 for (int i = 0; i< total;i++){
 
-		x(i,0,0) = i-sigma*3;
-		y(0,i,0) = i-sigma*3;
-		z(0,0,i) = i-sigma*3;
+		x(i,0,0) = (double)i-sigma*3;
+		y(0,i,0) = (double)i-sigma*3;
+		z(0,0,i) = (double)i-sigma*3;
 }
 
 int coli = Img.n_cols;
@@ -40,47 +40,53 @@ arma::cube Gz(1,1,total);
 //arma?
 std::cout<<"problem starts here"<<std::endl;
 if (type == 1){ //x
-Gx = -(exp((-square(x)/2/sigma/sigma)) % x)/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gx = -(exp((-square(x)/2/sigma/sigma)) % x)/(pow(2*M_PI,1.5)*pow(sigma,5));
+//std::cout<<"0 = "<<-exp((-square(x)/2/sigma/sigma));
+//std::cout<<"1st = "<<x;
+//std::cout<<"0 = "<<pow(2*M_PI,1.5);
+//std::cout<<"1 = "<<pow(sigma,5);
+//std::cout<<"2nd = "<<1/(pow(2*M_PI,3/2)*pow(sigma,5));
+//std::cout<<"Gx = "<<Gx<<std::endl;
 Gy = exp(-square(y)/2/sigma/sigma);
 Gz = exp(-square(z)/2/sigma/sigma);
 }
 else if (type == 2){ //y
-Gy = -(exp((-square(y)/2/sigma/sigma)) % y)/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gy = -(exp((-square(y)/2/sigma/sigma)) % y)/(pow(2*M_PI,1.5)*pow(sigma,5));
 Gz = exp(-square(z)/2/sigma/sigma);
 Gx = exp(-square(x)/2/sigma/sigma);
 }
 else if (type == 3){//z
-Gz = -(exp((-square(z)/2/sigma/sigma)) % z)/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gz = -(exp((-square(z)/2/sigma/sigma)) % z)/(pow(2*M_PI,1.5)*pow(sigma,5));
 Gy = exp(-square(y)/2/sigma/sigma);
 Gx = exp(-square(x)/2/sigma/sigma);
 }
 else if (type == 4){//xx
-Gx = (exp((-square(x)/2/sigma/sigma)) % (square(x)/sigma/sigma-1))/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gx = (exp((-square(x)/2/sigma/sigma)) % (square(x)/sigma/sigma-1))/(pow(2*M_PI,1.5)*pow(sigma,5));
 Gy = exp(-square(y)/2/sigma/sigma);
 Gz = exp(-square(z)/2/sigma/sigma);
 }
 else if (type == 5){//yy
-Gy = (exp((-square(y)/2/sigma/sigma)) % (square(y)/sigma/sigma-1))/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gy = (exp((-square(y)/2/sigma/sigma)) % (square(y)/sigma/sigma-1))/(pow(2*M_PI,1.5)*pow(sigma,5));
 Gx = exp(-square(x)/2/sigma/sigma);
 Gz = exp(-square(z)/2/sigma/sigma);
 }
 else if (type == 6){//zz
-Gz = (exp((-square(z)/2/sigma/sigma))% (square(z)/sigma/sigma-1))/(pow(2*M_PI,3/2)*pow(sigma,5));
+Gz = (exp((-square(z)/2/sigma/sigma)) % (square(z)/sigma/sigma-1))/(pow(2*M_PI,1.5)*pow(sigma,5));
 Gy = exp(-square(y)/2/sigma/sigma);
 Gx = exp(-square(x)/2/sigma/sigma);
 }
 else if (type == 7){//xy
-Gx = (exp(-square(x)/2/sigma/sigma) % x)/(pow(2*M_PI,3/2)*pow(sigma,7));
+Gx = (exp(-square(x)/2/sigma/sigma) % x)/(pow(2*M_PI,1.5)*pow(sigma,7));
 Gy = (exp(-square(y)/2/sigma/sigma) % y);
 Gz = exp(-square(z)/2/sigma/sigma);
 }
 else if (type == 8){//xz
-Gx = (exp(-square(x)/2/sigma/sigma) % x)/(pow(2*M_PI,3/2)*pow(sigma,7));
+Gx = (exp(-square(x)/2/sigma/sigma) % x)/(pow(2*M_PI,1.5)*pow(sigma,7));
 Gz = (exp(-square(z)/2/sigma/sigma) % z );
 Gy = exp(-square(y)/2/sigma/sigma);
 }
 else {//yz
-Gy = (exp(-square(y)/2/sigma/sigma) % y)/(pow(2*M_PI,3/2)*pow(sigma,7));
+Gy = (exp(-square(y)/2/sigma/sigma) % y)/(pow(2*M_PI,1.5)*pow(sigma,7));
 Gz = (exp(-square(z)/2/sigma/sigma) % z);
 Gx = exp(-square(x)/2/sigma/sigma);
 }
@@ -88,10 +94,15 @@ Gx = exp(-square(x)/2/sigma/sigma);
 
 //}//end for j
 //end for i
-
+//std::cout<<"Gx = "<<Gx<<std::endl;
+//std::cout<<"Gy = "<<Gy<<std::endl;
+//std::cout<<"Gz = "<<Gz<<std::endl;
 //use 2D convolution as the filter
 //If true, use correlation 
+std::cout<<"reach here"<<std::endl;
+
 out = compute(Img, Gx, false, 1, 1, 1);
+//std::cout<<"out1 = "<<out<<std::endl;
 out = compute(out, Gy, false, 1, 1, 1);
 out = compute(out, Gz, false, 1, 1, 1);
 
