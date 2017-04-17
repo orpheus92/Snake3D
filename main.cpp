@@ -1,8 +1,17 @@
+#ifdef IGL_VIEWERWITH_NANOGUI
+int main(){
+  std::cerr<<
+  "Error: recompile with LIBIGL_VIEWER_WITH_NANOGUI defined"<<std::endl;
+  return EXIT_FAILURE;
+}
+#else
 #include <iostream>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
 #include <igl/triangle/triangulate.h>
 #include <igl/png/writePNG.h>
+#include <nanogui/formhelper.h>
+#include <nanogui/screen.h>
 #include <igl/png/readPNG.h>
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -37,6 +46,11 @@ Eigen::MatrixXi F2;
 Eigen::MatrixXd V3;
 Eigen::MatrixXi F3;
 igl::viewer::Viewer viewer2;
+
+// GLOBAL VARIABLES
+float alpha = 0.2;
+float beta = 0.2;
+
 // Function to press key; called every time a keyboard button is pressed 
 bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
@@ -108,8 +122,8 @@ input, //input 3D image
 0, //attraction to edge, default 2.0
 //double wt, //attraction to end points, default 0.01
 2, //sigma to calculate gradient of edge energy image (give image force), default 20
-0.2,//double alpha, //membrane energy, default 0.2
-0.2,//double beta, //thin plate energy, default 0.2
+alpha,//double alpha, //membrane energy, default 0.2
+beta,//double beta, //thin plate energy, default 0.2
 0.1,//double delta, //baloon force, default 0.1
 0.5,//double kappa, //weight of external img force, default 2
 // the following is used for GVF snake
@@ -299,12 +313,20 @@ Eigen::MatrixXi F22;
 
         
 	viewer2.data.clear();
+  viewer2.callback_init = [&](igl::viewer::Viewer& viewer){
+    viewer.ngui->addVariable("ALPHA : ", alpha);
+    viewer.ngui->addVariable("BETA : ", beta);
+    viewer.screen->performLayout();
+    return false;
+  }
+  
 	//viewer2.data.set_mesh(V22,F22);
 //	viewer2.core.align_camera_center(V22,F22);
 	viewer2.core.show_texture = false;
-        viewer2.callback_key_down = &key_down;
+  viewer2.callback_key_down = &key_down;
 	viewer2.launch();
 
 // Wait for Key? 
   
 }
+#endif
