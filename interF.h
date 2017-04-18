@@ -3,7 +3,7 @@
 #include <string>
 #include <cmath> 
 #include <armadillo>
-#include <Eigen/SparseCholesky>
+#include <Eigen/SparseLU>
 #include <Eigen/SparseCore>
 #include <igl/viewer/Viewer.h>
 //#include <igl/unique.h>

@@ -28,6 +28,7 @@ int main(){
 
 #include <string>
 
+using namespace std;
 // Input polygon
 Eigen::MatrixXd V;
 Eigen::MatrixXi E;
@@ -50,7 +51,7 @@ igl::viewer::Viewer viewer2;
 // GLOBAL VARIABLES
 float alpha = 0.2;
 float beta = 0.2;
-
+float iterations = 20;
 // Function to press key; called every time a keyboard button is pressed 
 bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
@@ -109,13 +110,16 @@ std::cout<<input.n_rows<<" "<<input.n_cols<<" "<<input.n_slices<<std::endl;
 
 viewer2.data.set_mesh(V,F);
 //viewer2.core.align_camera_center(V,F);
+cout << "alpha = " << alpha<<endl;
+cout << "beta = " << beta<<endl;
+cout << "iteratopms = " << iterations <<endl;
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> outV;
 outV =  snake3D(
 V, //vertices
 F, //Faces
 input, //input 3D image
 0.1, //time step, default 1
-20, //# of iteration, default 100
+iterations, //# of iteration, default 100
 //int npts, //# of pts to interpolate contours 
 2, // sigma to calculate img derivative default 10
 -1, //attraction to lines, < 0 to black line; > 0 to white line; default 0.04
@@ -316,9 +320,10 @@ Eigen::MatrixXi F22;
   viewer2.callback_init = [&](igl::viewer::Viewer& viewer){
     viewer.ngui->addVariable("ALPHA : ", alpha);
     viewer.ngui->addVariable("BETA : ", beta);
+    viewer.ngui->addVariable("ITERATIONS : ", iterations);
     viewer.screen->performLayout();
     return false;
-  }
+  };
   
 	//viewer2.data.set_mesh(V22,F22);
 //	viewer2.core.align_camera_center(V22,F22);

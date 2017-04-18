@@ -100,12 +100,11 @@ Gx = exp(-square(x)/2/sigma/sigma);
 //use 2D convolution as the filter
 //If true, use correlation 
 std::cout<<"reach here"<<std::endl;
-
+//std::cout<<"Img20 = "<< Img.slice(20) <<std::endl;
 out = compute(Img, Gx, false, 1, 1, 1);
-//std::cout<<"out1 = "<<out<<std::endl;
 out = compute(out, Gy, false, 1, 1, 1);
 out = compute(out, Gz, false, 1, 1, 1);
-
+//std::cout<<"out20 = "<< out.slice(20) <<std::endl;
 return out;
 
 }

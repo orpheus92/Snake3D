@@ -14,7 +14,7 @@ double alpha,
 double beta,
 double gamma)
 {
-std::cout<<"in interF"<<std::endl;
+//std::cout<<"in interF"<<std::endl;
 int nV = V.rows();
 
 arma::field<arma::vec> Nebr(nV);
@@ -23,7 +23,7 @@ arma::field<arma::vec> Nebr(nV);
 Nebr = vNbnr(V, F);
 
 Eigen::SparseMatrix<double> regmat(nV,nV); 
-std::cout<<"spmat check"<<std::endl;
+//std::cout<<"spmat check"<<std::endl;
   // Act like matlab's [C,IA,IC] = unique(X)
   //
   // Templates:
@@ -44,7 +44,7 @@ for (int vv = 0; vv<nV; vv++)
 	 // igl::unique(pre,curR);
 //iterator used for uncertain size of Nebr pts
 	 arma::vec curR = arma::unique(Nebr(vv));
-
+//std::cout<<"UniqueNe = "<<curR<<std::endl;
 //arma::vec::iterator a = Nebr(vv).begin();
 //arma::vec::iterator b = Nebr(vv).end();
 
@@ -59,16 +59,22 @@ for(int iterC = 0; iterC<curR.n_elem; iterC++)
 // Add the vertex it self 
 regmat.insert(vv,vv)=-1;
 }
-std::cout<<"after for loop in interF"<<std::endl;
+//std::cout<<"sparmat = "<<regmat<<std::endl;
+//std::cout<<"after for loop in interF"<<std::endl;
 Eigen::SparseMatrix<double> idmat(nV,nV); 
 idmat.setIdentity();
+//std::cout<<"idmat = "<<idmat<<std::endl;
 //      
 //return type is a sparse regularization matrix
 Eigen::SparseMatrix<double> solvmat(nV,nV); 
 
 solvmat = gamma*idmat-alpha*regmat+beta*regmat*regmat;
+//std::cout<<"part1 = "<<(gamma*idmat).rowwise().sum()<<std::endl;
+//std::cout<<"part2 = "<<-(alpha*regmat).rowwise().sum()<<std::endl;
+//std::cout<<"part3 = "<<(beta*regmat*regmat).rowwise().sum()<<std::endl;
+//std::cout<<"part4 = "<<solvmat<<std::endl;
 
-Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver;
+Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 solver.compute(solvmat);
 Eigen::SparseMatrix<double> I(nV,nV);
 I.setIdentity();
@@ -110,7 +116,7 @@ for (int fi = 0; fi<F.rows(); fi++)
 	//Ne(F(fi,2)-1) = arma::join_cols( Ne(F(fi,2)-1), F(fi,0) ); 
 	//Ne(F(fi,2)-1) = arma::join_cols( Ne(F(fi,2)-1), F(fi,1) ); 	
 }
-
+//std::cout<<"Nb = "<<Nb<<std::endl;
 /*for (int vi = 0; vi<r; vi++)
 {	
 	// unique function in armadillo, gives vec 

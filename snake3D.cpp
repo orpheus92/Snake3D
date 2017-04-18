@@ -5,7 +5,9 @@
 #include <cassert>
 
 
-Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> interp3(arma::cube Fx, Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V);
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> interp3(arma::cube Fx, Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V1, 
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V2, 
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V3);
 //baloon Force
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> baloonF(Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic> F,
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V);
@@ -75,17 +77,24 @@ if (volume >0)
 arma::cube Eext;
 
 Eext = extForce(input,wl,we,sigma);
-Eext.save("myEext", arma::arma_ascii);
+
+//std::cout<<"ext20 = "<<Eext.slice(20)<<std::endl;
+//std::cout<<"ext38 = "<<Eext.slice(38)<<std::endl;
+//Eext.save("myEext", arma::arma_ascii);
 arma::cube Fx;
 arma::cube Fy;
 arma::cube Fz;
 
 Fx = -imDev(Eext,sigma2,1)*2*sigma2*sigma2;
-std::cout<<"after imDev 1"<<std::endl;
+//std::cout<<"after imDev 1"<<std::endl;
 Fy = -imDev(Eext,sigma2,2)*2*sigma2*sigma2;
-std::cout<<"after imDev 2"<<std::endl;
+//std::cout<<"after imDev 2"<<std::endl;
 Fz = -imDev(Eext,sigma2,3)*2*sigma2*sigma2;
-std::cout<<"after imDev 3"<<std::endl;
+//std::cout<<"after imDev 3"<<std::endl;
+//std::cout<<"Fx18 = "<<Fx.slice(18)<<std::endl;
+//std::cout<<"Fx37 = "<<Fx.slice(37)<<std::endl;
+//std::cout<<"Fy40 = "<<Fy.slice(40)<<std::endl;
+//std::cout<<"Fz33 = "<<Fz.slice(33)<<std::endl;
 //Calcuate GVF Image Force  Might be needed later 
 //Not used for now
 /*
@@ -109,11 +118,11 @@ intForce = interF(V,F,alpha,beta,gamma);
 
 // Triangulated interior
 
-for (int it = 0;it<0;it++){
+for (int it = 0;it<iter;it++){
 
 
 V = snakeMove3D(intForce, F, V, Fx, Fy, Fz, gamma, kappa, delta, lamb);
-  std::cout<<"V = "<<V<<std::endl;
+ // std::cout<<"V = "<<V<<std::endl;
 
   //  
   }
@@ -157,7 +166,7 @@ e3n = e3.array()/(((e3.col(0).array().square()+e3.col(1).array().square()+e3.col
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> ang1 = (-e1n.array()*e3n.array()).rowwise().sum().acos();//.array().acos();
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> ang2 = (-e2n.array()*e1n.array()).rowwise().sum().acos();//.array().acos();
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> ang3 = (-e3n.array()*e2n.array()).rowwise().sum().acos();//.array().acos();
-std::cout<<ang3.rows()<<ang3.cols()<<" here "<<std::endl;
+//std::cout<<ang3.rows()<<ang3.cols()<<" here "<<std::endl;
 
 
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> vNormal = Eigen::MatrixXd::Zero(V.rows(), V.cols());
@@ -234,14 +243,13 @@ return out;
 
 */
 // Problem for boundary condition, Fix later
-Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> interp3(arma::cube Fx, Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V)
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> interp3(arma::cube Fx, Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V1, 
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V2, 
+Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> V3)
 {
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> out;
-//int r = Fx.n_rows;
-//int c = Fx.n_cols;
-//int l = Fx.n_slices;
 
-out.resize(V.rows(),1);
+out.resize(V1.rows(),1);
 double x;
 double y;
 double z;
@@ -257,12 +265,13 @@ int y1;
 int z0;
 int z1;
 
-double c00;
-double c01;
-double c10;
-double c11;
-double c0;
-double c1;
+double va;
+double vb;
+double vc;
+double vd;
+double v1;
+double v2;
+double v;
 //double q110;
 //double q111;
 
@@ -273,36 +282,65 @@ double c1;
 //double y2;
 
 //bilinear interpolation
-for (int i = 0; i<V.rows();i++){
+for (int i = 0; i<V1.rows();i++){
 
-y = V(i,0);
-x = V(i,1);
-z = V(i,2);
 
-x0 = (int)ceil(x)-1;
-x1 = (int)ceil(x);
-y0 = (int)ceil(y)-1;
-y1 = (int)ceil(y);
-z0 = (int)ceil(z)-1;
-z1 = (int)ceil(z);
+x = V1(i,0);
+y = V2(i,0);
+z = V3(i,0);
 
+x0 = (int)floor(x);
+x1 = (int)floor(x)+1;
+y0 = (int)floor(y);
+y1 = (int)floor(y)+1;
+z0 = (int)floor(z);
+z1 = (int)floor(z)+1;
 
 xd = (x-(double)x0);
 yd = (y-(double)y0);
 zd = (z-(double)z0);
-	if(x0<0)
-		x0 = 0;
-	if(y0<0)
-		y0 = 0;
-	if(z0<0)
-		z0 = 0;
-	c00 = Fx(y0,x0,z0)*(1-xd)+Fx(y0,x1,z0)*xd;
-	c01 = Fx(y0,x0,z1)*(1-xd)+Fx(y0,x1,z1)*xd;
-	c10 = Fx(y1,x0,z0)*(1-xd)+Fx(y1,x1,z0)*xd;
-	c11 = Fx(y1,x0,z1)*(1-xd)+Fx(y1,x1,z1)*xd; 	
-	c0 = c00*(1-yd)+c10*yd;
-	c1 = c01*(1-yd)+c11*yd;
-	out(i,0) = c0*(1-zd)+c1*zd;
+//std::cout<<"x0 = "<<x0<<std::endl;
+//std::cout<<"x1 = "<<x1<<std::endl;
+//std::cout<<"xd = "<<xd<<std::endl;
+//std::cout<<"x1 = "<<x1<<std::endl;
+	if(x0<1)
+		x0 = 1;
+	if(y0<1)
+		y0 = 1;
+	if(z0<1)
+		z0 = 1;
+	va = (1-zd)*Fx(x0-1,y0-1,z0-1)+zd*Fx(x0-1,y0-1,z1-1);
+	vb = (1-zd)*Fx(x1-1,y0-1,z0-1)+zd*Fx(x1-1,y0-1,z1-1);	
+	vc = (1-zd)*Fx(x0-1,y1-1,z0-1)+zd*Fx(x0-1,y1-1,z1-1);
+	vd = (1-zd)*Fx(x1-1,y1-1,z0-1)+zd*Fx(x1-1,y1-1,z1-1);	
+	
+	//va = (1-zd)*Fx(x0,y0,z0)+zd*Fx(x0,y0,z1);
+	//vb = (1-zd)*Fx(x1,y0,z0)+zd*Fx(x1,y0,z1);	
+	//vc = (1-zd)*Fx(x0,y1,z0)+zd*Fx(x0,y1,z1);
+	//vd = (1-zd)*Fx(x1,y1,z0)+zd*Fx(x1,y1,z1);
+	
+	v1 = (1-xd)*va+xd*vb;
+	v2 = (1-xd)*vc+xd*vd;
+	v = (1-yd)*v1+yd*v2;	
+		
+	//c00 = Fx(y0,x0,z0)*(1-xd)+Fx(y0,x1,z0)*xd;
+	//c01 = Fx(y0,x0,z1)*(1-xd)+Fx(y0,x1,z1)*xd;
+	//c10 = Fx(y1,x0,z0)*(1-xd)+Fx(y1,x1,z0)*xd;
+	//c11 = Fx(y1,x0,z1)*(1-xd)+Fx(y1,x1,z1)*xd; 	
+	//c00 = Fx(x0,y0,z0)*(1-xd)+Fx(x0,y1,z0)*xd;
+	//c01 = Fx(x0,y0,z1)*(1-xd)+Fx(x0,y1,z1)*xd;
+	//c10 = Fx(x1,y0,z0)*(1-xd)+Fx(x1,y1,z0)*xd;
+	//c11 = Fx(x1,y0,z1)*(1-xd)+Fx(x1,y1,z1)*xd; 
+	
+	//c0 = c00*(1-yd)+c10*yd;
+	//c1 = c01*(1-yd)+c11*yd;
+	//std::cout<<"v1 = "<< x <<" v2 = "<<y<<" v3 = "<<z<<std::endl;
+	//std::cout<<"v000 = "<< Fx(x0-1,y0-1,z0-1) <<" v001 = "<<Fx(x0-1,y0-1,z1-1)<<" v010 = "<<Fx(x0-1,y1-1,z0-1)<<" v011 = "<<Fx(x0-1,y1-1,z1-1)<<std::endl;
+	//std::cout<<"v100 = "<< Fx(x1-1,y0-1,z0-1) <<" v101 = "<<Fx(x1-1,y0-1,z1-1)<<" v110 = "<<Fx(x1-1,y1-1,z0-1)<<" v111 = "<<Fx(x1-1,y1-1,z1-1)<<std::endl;
+	//std::cout<<"va = "<< va <<" vb = "<<vb<<" vc = "<<vc<<" vd = "<<vd<<std::endl;
+	//std::cout<<"v1 = "<< v1 <<"v2 = "<<v2<<std::endl;
+	//std::cout<<"ind = "<< i <<"v = "<<0.5*v<<std::endl;
+	out(i,0) = v;//c0*(1-zd)+c1*zd;
 	}
 
 
@@ -338,37 +376,55 @@ imforce.resize(V.rows(),V.cols());
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> baforce;
 baforce.resize(V.rows(),V.cols());
 //clamp boundary
-V.col(0)=V.col(0).cwiseMax(0).cwiseMin(Fx.n_cols-1);
-V.col(1)=V.col(1).cwiseMax(0).cwiseMin(Fx.n_rows-1);
+//std::cout<<"v01 = "<<V.col(0)<<std::endl;
+V.col(0)=V.col(0).cwiseMax(0).cwiseMin(Fx.n_rows-1);
+V.col(1)=V.col(1).cwiseMax(0).cwiseMin(Fx.n_cols-1);
 V.col(2)=V.col(2).cwiseMax(0).cwiseMin(Fx.n_slices-1);
+//std::cout<<"v02 = "<<V.col(0)<<std::endl;
 //std::cout<<V<<std::endl;
 //std::cout<<"======= first V"<<std::endl;
 
 //Get image force on the contour points
-imforce.col(0)=kappa*interp3(Fx,V);
-imforce.col(1)=kappa*interp3(Fy,V);
-imforce.col(2)=kappa*interp3(Fz,V);
+//std::cout<<"fx18 = "<<Fx.slice(18)<<std::endl;
+//std::cout<<"fx42 = "<<Fx.slice(42)<<std::endl;
+imforce.col(0)=kappa*interp3(Fx,V.col(0),V.col(1),V.col(2));
+imforce.col(1)=kappa*interp3(Fy,V.col(0),V.col(1),V.col(2));
+imforce.col(2)=kappa*interp3(Fz,V.col(0),V.col(1),V.col(2));
+
 //std::cout<<"imforce = "<<imforce<<std::endl;
 //Get baloon force on the contour points
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> N;
 N.resize(V.rows(),V.cols());
 N = baloonF(F,V);
+//std::cout<<"N = "<<N<<std::endl;
 baforce = delta * N; 
 Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> Fext3;
 Fext3.resize(V.rows(),V.cols());
 Fext3 = (imforce.col(0).array()*N.col(0).array()+imforce.col(1).array()*N.col(1).array()+imforce.col(2).array()*N.col(2).array()).replicate(1,3)*N.array();
-
+//std::cout<<"V0 = "<<V.col(0)<<std::endl;
 //Update contour positions
-V.col(0) = intForce * (gamma*V.col(0)) + imforce.col(0)*(1-lamb) + Fext3.col(0)*lamb + baforce.col(0);
-V.col(1) = intForce * (gamma*V.col(1)) + imforce.col(1)*(1-lamb) + Fext3.col(1)*lamb + baforce.col(1);
-V.col(2) = intForce * (gamma*V.col(2)) + imforce.col(2)*(1-lamb) + Fext3.col(2)*lamb + baforce.col(2);
- 
+//std::cout<<"v0a = "<<V.col(0)<<std::endl;
 
+//std::cout<<"part1 = "<< (gamma*V.col(0))<<std::endl; 
+//std::cout<<"part2 = "<< imforce.col(0)*(1-lamb)<<std::endl; 
+//std::cout<<"part3 = "<< Fext3.col(0)*lamb<<std::endl; 
+//std::cout<<"part4 = "<< baforce.col(0)<<std::endl; 
+
+V.col(0) = intForce * (gamma*V.col(0) + imforce.col(0)*(1-lamb) + Fext3.col(0)*lamb + baforce.col(0));
+V.col(1) = intForce * (gamma*V.col(1) + imforce.col(1)*(1-lamb) + Fext3.col(1)*lamb + baforce.col(1));
+V.col(2) = intForce * (gamma*V.col(2) + imforce.col(2)*(1-lamb) + Fext3.col(2)*lamb + baforce.col(2));
+//std::cout<<"v0b = "<<V.col(0)<<std::endl;
+//std::cout<<"part1 = "<< (gamma*V.col(0))<<std::endl; 
+//std::cout<<"part2 = "<< imforce.col(0)*(1-lamb)<<std::endl; 
+//std::cout<<"part3 = "<< Fext3.col(0)*lamb<<std::endl; 
+//std::cout<<"part4 = "<< baforce.col(0)<<std::endl; 
+
+//std::cout<<"V01 = "<<V.col(0)<<std::endl;
 //Clamp contour to boundary
-V.col(0)=V.col(0).cwiseMax(0).cwiseMin(Fx.n_cols-1);
-V.col(1)=V.col(1).cwiseMax(0).cwiseMin(Fx.n_rows-1);
+V.col(0)=V.col(0).cwiseMax(0).cwiseMin(Fx.n_rows-1);
+V.col(1)=V.col(1).cwiseMax(0).cwiseMin(Fx.n_cols-1);
 V.col(2)=V.col(2).cwiseMax(0).cwiseMin(Fx.n_slices-1);
-
+//std::cout<<"V02 = "<<V.col(0)<<std::endl;
 std::cout<<"end of snake move"<<std::endl;
 return V;
 }
